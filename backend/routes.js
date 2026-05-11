@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Services
 const llmService = require('./services/llmService.js');
-const schedulerService = require('./services/schedulerService');
+const schedulerService = require('./services/schedularService');
 
 router.post('/task', async (req, res, next) => {
     try {

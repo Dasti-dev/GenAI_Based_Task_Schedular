@@ -1,4 +1,4 @@
-const Task = require("../models/taskModel");
+const Task = require("../model/taskModel");
 
 async function handleTask(json) {
     if (!json || !json.type) {

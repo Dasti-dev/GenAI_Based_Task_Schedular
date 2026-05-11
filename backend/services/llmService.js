@@ -1,10 +1,18 @@
+require("dotenv").config();
+
 const axios = require("axios");
+const chrono = require("chrono-node");
 
-const OLLAMA_URL = "http://localhost:11434/api/generate";
-const MODEL = "mistral";
+const OLLAMA_URL = process.env.OLLAMA_URL;
+const MODEL = process.env.OLLAMA_MODEL || "phi:latest";
 
+// =====================================
+// 🧠 MAIN NLP FUNCTION
+// =====================================
 async function parseInput(input) {
+
     try {
+
         if (!input || typeof input !== "string") {
             throw new Error("Invalid input");
         }
@@ -12,13 +20,19 @@ async function parseInput(input) {
         const prompt = buildPrompt(input);
 
         const response = await axios.post(OLLAMA_URL, {
+
             model: MODEL,
+
             prompt: prompt,
+
             stream: false,
+
             options: {
-                temperature: 0.1,
-                top_p: 0.9
+                temperature: 0,
+                top_p: 0.8,
+                num_predict: 200
             }
+
         });
 
         if (
@@ -31,17 +45,39 @@ async function parseInput(input) {
 
         const rawOutput = response.data.response.trim();
 
+        console.log("LLM RAW OUTPUT:\n", rawOutput);
+
         const parsedJSON = safeJSONParse(rawOutput);
 
         if (!parsedJSON) {
             throw new Error("Failed to parse JSON from LLM");
         }
 
+        // =====================================
+        // 📅 REAL DATE PARSING
+        // =====================================
+
+        const parsedDate = chrono.parseDate(input);
+
+        if (parsedDate) {
+
+            parsedJSON.date = parsedDate
+                .toISOString()
+                .split("T")[0];
+
+        } else {
+
+            parsedJSON.date = null;
+        }
+
+        applyDefaults(parsedJSON);
+
         validateLLMResponse(parsedJSON);
 
         return parsedJSON;
 
     } catch (err) {
+
         console.error("LLM Service Error:", err.message);
 
         throw new Error(
@@ -50,22 +86,25 @@ async function parseInput(input) {
     }
 }
 
+// =====================================
+// 🧾 PROMPT TEMPLATE
+// =====================================
 function buildPrompt(input) {
+
     return `
-You are an intelligent task parsing AI.
+You are a JSON API.
 
-Your ONLY job is to convert user input into valid JSON.
+Convert the user request into STRICT VALID JSON.
 
-STRICT RULES:
-- Return ONLY raw JSON
-- No markdown
-- No explanation
-- No extra text
-- No code blocks
-- Always include all fields
-- If field unavailable, use null or empty array
+RULES:
+- RETURN ONLY JSON
+- NO markdown
+- NO explanation
+- NO code block
+- NO extra text
+- DO NOT generate actual dates
 
-Supported types:
+SUPPORTED TYPES:
 - create
 - move
 - update
@@ -76,7 +115,7 @@ JSON FORMAT:
   "type": "create",
   "id": null,
   "task": "string",
-  "date": "YYYY-MM-DD",
+  "date": null,
   "time_preference": "morning | afternoon | evening | null",
   "priority": "low | mid | high",
   "constraints": [],
@@ -84,50 +123,18 @@ JSON FORMAT:
   "source": "llm"
 }
 
-EXAMPLES:
-
-Input:
-"Gym tomorrow morning"
-
-Output:
-{
-  "type": "create",
-  "id": null,
-  "task": "Gym",
-  "date": "2026-01-01",
-  "time_preference": "morning",
-  "priority": "mid",
-  "constraints": [],
-  "recurrence": "none",
-  "source": "llm"
-}
-
-Input:
-"Move gym to evening"
-
-Output:
-{
-  "type": "move",
-  "id": null,
-  "task": "Gym",
-  "date": null,
-  "time_preference": "evening",
-  "priority": "mid",
-  "constraints": [],
-  "recurrence": "none",
-  "source": "llm"
-}
-
 USER INPUT:
 "${input}"
-
-OUTPUT:
 `;
 }
 
+// =====================================
+// 🛡️ SAFE JSON PARSER
+// =====================================
 function safeJSONParse(text) {
+
     try {
-        // Extract JSON object if extra text exists
+
         const match = text.match(/\{[\s\S]*\}/);
 
         if (!match) {
@@ -137,12 +144,32 @@ function safeJSONParse(text) {
         return JSON.parse(match[0]);
 
     } catch (err) {
+
         console.error("JSON Parse Error:", err.message);
+
         return null;
     }
 }
 
+// =====================================
+// ✅ DEFAULT VALUES
+// =====================================
+function applyDefaults(json) {
+
+    json.priority ||= "mid";
+
+    json.constraints ||= [];
+
+    json.recurrence ||= "none";
+
+    json.source ||= "llm";
+}
+
+// =====================================
+// ✅ VALIDATION
+// =====================================
 function validateLLMResponse(json) {
+
     if (!json.type) {
         throw new Error("Missing task type");
     }

@@ -1,109 +1,115 @@
-# AI Task Scheduler
+# TaskAI — AI-Powered Intelligent Scheduler
 
-An AI-powered intelligent scheduling system that converts natural language into structured tasks, validates schedules, resolves conflicts, and manages tasks through a modern productivity dashboard.
+TaskAI is a full-stack AI-integrated productivity platform that converts natural language into intelligently scheduled tasks using local LLM inference.
 
-This project combines:
-
-* Local LLM inference using Ollama + Phi
-* NLP task parsing
-* Intelligent scheduling logic
-* MongoDB persistence
-* React dashboard UI
-* Calendar-based visualization
-
----
-
-# Project Goal
-
-Traditional task managers require manual input and rigid scheduling.
-
-This project aims to create an AI-assisted scheduling workspace where users can simply type:
+Users can create schedules simply by typing commands like:
 
 ```text
-Gym tomorrow morning
+Schedule gym tomorrow morning
 ```
 
-and the system:
+The system automatically:
 
-* understands intent
-* extracts structured data
-* assigns a valid time slot
-* checks conflicts
-* stores tasks
-* visualizes them on calendar
-
-Future goal:
-Turn this into a context-aware AI secretary capable of:
-
-* schedule optimization
-* behavioral learning
-* travel-time awareness
-* weather-aware scheduling
-* adaptive rescheduling
+- interprets user intent
+- extracts structured scheduling data
+- validates task information
+- assigns suitable time slots
+- detects scheduling conflicts
+- stores tasks securely
+- visualizes schedules in an interactive calendar dashboard
 
 ---
 
 # Features
 
-## Backend
+# AI & NLP
 
-* Natural language task parsing
-* Local LLM integration via Ollama
-* MongoDB persistence
-* Conflict detection
-* Task CRUD operations
-* AI-powered task interpretation
-* Modular scheduler architecture
+- Natural language task parsing
+- Local LLM integration using Ollama + Phi
+- Prompt-engineered structured JSON generation
+- Real-time date extraction using chrono-node
+- AI-assisted scheduling workflow
 
-## Frontend
+# Authentication & Security
 
-* Modern dark productivity dashboard
-* AI task input panel
-* Weekly calendar view
-* Task timeline
-* Smooth animations
-* Loading states and skeletons
-* Sidebar workspace navigation
+- JWT authentication
+- Login & Signup system
+- Protected routes
+- Multi-user task isolation
+- Password hashing using bcrypt
+- Persistent login sessions
+
+# Scheduling Engine
+
+- Intelligent time slot assignment
+- Conflict detection
+- Task CRUD operations
+- Rescheduling support
+- Recurring task structure
+- Priority-based tasks
+
+# Frontend Dashboard
+
+- Modern dark productivity UI
+- Interactive calendar system
+- AI scheduling input panel
+- Task management dashboard
+- Sidebar workspace navigation
+- Persistent authentication state
+- Responsive layouts
+
+# Backend Architecture
+
+- Modular service architecture
+- REST API structure
+- MongoDB persistence
+- Middleware-based authentication
+- Scalable scheduler design
 
 ---
 
 # Tech Stack
 
-## Frontend
+# Frontend
 
-* React
-* Vite
-* TailwindCSS
-* shadcn/ui
-* react-big-calendar
-* Axios
+- React
+- Vite
+- TailwindCSS v4
+- shadcn/ui
+- react-big-calendar
+- Axios
+- Lucide Icons
 
-## Backend
+# Backend
 
-* Node.js
-* Express.js
-* MongoDB Atlas
-* Mongoose
-* Axios
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Mongoose
+- JWT Authentication
+- bcryptjs
+- Axios
 
-## AI / NLP
+# AI / NLP
 
-* Ollama
-* Phi (local model)
-* chrono-node
+- Ollama
+- Phi local LLM
+- chrono-node
 
 ---
 
-# Architecture
+# System Architecture
 
 ```text
-Frontend (React Dashboard)
+Frontend Dashboard (React)
         ↓
-Backend API (Express)
+REST API Layer (Express)
         ↓
-LLM Service (Phi via Ollama)
+JWT Authentication Middleware
         ↓
-Scheduler Engine
+LLM Parsing Engine (Phi via Ollama)
+        ↓
+Scheduling Engine
         ↓
 MongoDB Atlas
 ```
@@ -112,22 +118,35 @@ MongoDB Atlas
 
 # Project Structure
 
+# Backend
+
 ```text
 backend/
 │
+├── middleware/
+│   └── authMiddleware.js
+│
 ├── model/
-│   └── taskModel.js
+│   ├── taskModel.js
+│   └── userModel.js
 │
 ├── services/
+│   ├── authService.js
 │   ├── llmService.js
 │   └── schedularService.js
+│
+├── utils/
+│   └── generateToken.js
 │
 ├── routes.js
 ├── server.js
 ├── package.json
 └── .env
+```
 
+# Frontend
 
+```text
 frontend/
 │
 ├── src/
@@ -135,12 +154,19 @@ frontend/
 │   ├── components/
 │   │   ├── calendar/
 │   │   ├── dashboard/
-│   │   └── layout/
+│   │   ├── layout/
+│   │   └── ui/
 │   │
 │   ├── pages/
+│   │   ├── Auth.jsx
+│   │   └── Dashboard.jsx
+│   │
 │   ├── services/
+│   │   └── api.js
+│   │
 │   ├── App.jsx
-│   └── main.jsx
+│   ├── main.jsx
+│   └── index.css
 │
 ├── package.json
 └── vite.config.js
@@ -148,76 +174,103 @@ frontend/
 
 ---
 
-# File Responsibilities
+# Core Modules
 
-## Backend
+# Backend
 
-### `server.js`
+## `llmService.js`
 
-Main backend entry point.
+Responsible for:
 
-* starts Express server
-* connects MongoDB
-* registers routes
-* handles errors
+- prompt engineering
+- communication with Phi model
+- extracting structured JSON
+- validating AI output
+- natural language parsing
 
-### `routes.js`
+## `schedularService.js`
 
-Defines all API routes.
+Core scheduling engine:
 
-* create task
-* get tasks
-* move/update/delete tasks
+- task creation
+- conflict detection
+- schedule validation
+- time-slot allocation
+- task movement
+- task deletion
 
-### `services/llmService.js`
+## `authService.js`
 
-Handles NLP processing.
+Handles:
 
-* sends prompts to Phi model
-* parses AI output
-* converts natural language to JSON
-* performs date extraction
+- signup logic
+- login logic
+- password hashing
+- token generation
 
-### `services/schedularService.js`
+## `authMiddleware.js`
 
-Core scheduling engine.
+Protects private routes using JWT verification.
 
-* validates tasks
-* assigns time slots
-* checks conflicts
-* manages updates/deletes
+## `taskModel.js`
 
-### `model/taskModel.js`
+Stores:
 
-MongoDB schema for tasks.
+- task metadata
+- priority
+- recurrence
+- scheduling info
+- user ownership
 
 ---
 
-## Frontend
+# Frontend
 
-### `Dashboard.jsx`
+## `Auth.jsx`
 
-Main workspace layout.
+Authentication UI for:
 
-### `Sidebar.jsx`
+- signup
+- login
+- persistent session setup
 
-Workspace navigation and AI status panel.
+## `Dashboard.jsx`
 
-### `AIInputBox.jsx`
+Main productivity workspace.
+
+## `CalendarView.jsx`
+
+Interactive schedule visualization.
+
+## `AIInputBox.jsx`
 
 Natural language task creation interface.
 
-### `TaskList.jsx`
+## `TaskList.jsx`
 
-Displays all tasks.
+Displays all user tasks.
 
-### `CalendarView.jsx`
+## `Sidebar.jsx`
 
-Weekly/monthly schedule visualization.
+Workspace navigation and AI assistant panel.
 
-### `services/api.js`
+---
 
-Handles frontend-backend communication.
+# Authentication Flow
+
+```text
+User Login / Signup
+        ↓
+JWT Token Generated
+        ↓
+Stored in LocalStorage
+        ↓
+Axios Interceptor Attaches Token
+        ↓
+Protected Backend Routes
+        ↓
+User-specific Data Access
+```
 
 ---
 
@@ -231,28 +284,15 @@ PORT=5000
 MONGO_URI=your_mongodb_connection_string
 
 OLLAMA_URL=http://localhost:11434/api/generate
+
 OLLAMA_MODEL=phi:latest
+
+JWT_SECRET=mysecretkey
 ```
 
 ---
 
-# Requirements
-
-## Software
-
-* Node.js
-* npm
-* MongoDB Atlas account
-* Ollama installed
-
-## Recommended Hardware
-
-* 8GB RAM minimum
-* 16GB preferred
-
----
-
-# Setup Instructions
+# Installation & Setup
 
 # 1. Clone Repository
 
@@ -270,6 +310,12 @@ cd backend
 npm install
 ```
 
+Install additional packages:
+
+```bash
+npm install bcryptjs jsonwebtoken
+```
+
 ---
 
 # 3. Frontend Setup
@@ -284,9 +330,11 @@ npm install
 
 # 4. Install Ollama
 
-Download from:
+Download:
 
-[https://ollama.com](https://ollama.com)
+```text
+https://ollama.com
+```
 
 ---
 
@@ -304,21 +352,28 @@ ollama pull phi
 ollama run phi
 ```
 
-Keep terminal open.
+Keep this terminal running.
 
 ---
 
-# 7. Run Backend
+# 7. Start Backend
 
 ```bash
 cd backend
 
-npm run dev
+node server.js
+```
+
+Expected:
+
+```text
+MongoDB connected
+Server running on port 5000
 ```
 
 ---
 
-# 8. Run Frontend
+# 8. Start Frontend
 
 ```bash
 cd frontend
@@ -330,17 +385,64 @@ npm run dev
 
 # API Endpoints
 
-## Create Task
+# Authentication
+
+## Signup
 
 ```http
-POST /routes/task
+POST /api/signup
 ```
 
-Example:
+### Request
 
 ```json
 {
-  "input": "Gym tomorrow morning"
+  "name": "Billu",
+  "email": "billu@gmail.com",
+  "password": "123456"
+}
+```
+
+---
+
+## Login
+
+```http
+POST /api/login
+```
+
+### Request
+
+```json
+{
+  "email": "billu@gmail.com",
+  "password": "123456"
+}
+```
+
+---
+
+# Task Routes
+
+All task routes require:
+
+```text
+Authorization: Bearer TOKEN
+```
+
+---
+
+## Create Task
+
+```http
+POST /api/task
+```
+
+### Request
+
+```json
+{
+  "input": "Schedule gym tomorrow morning"
 }
 ```
 
@@ -349,7 +451,7 @@ Example:
 ## Get Tasks
 
 ```http
-GET /routes/tasks
+GET /api/tasks
 ```
 
 ---
@@ -357,16 +459,16 @@ GET /routes/tasks
 ## Update / Move Task
 
 ```http
-PUT /routes/task
+PUT /api/task
 ```
 
-Example:
+### Request
 
 ```json
 {
   "type": "move",
   "id": "TASK_ID",
-  "date": "2026-05-15",
+  "date": "2026-05-25",
   "time_preference": "evening"
 }
 ```
@@ -384,61 +486,10 @@ Example:
 
 ---
 
-# Current Limitations
-
-* Basic rule-based scheduling
-* Fixed slot assignment
-* Limited contextual awareness
-* No authentication
-* No drag-drop calendar editing
-* No multi-user support
-
----
-
-# Future Improvements
-
-## AI Improvements
-
-* Better reasoning models
-* User behavior learning
-* Personalized scheduling
-* Habit tracking
-
-## Scheduling Improvements
-
-* Dynamic duration handling
-* Nearest free slot suggestions
-* Smart rescheduling
-* Priority-based optimization
-
-## Context Awareness
-
-* Weather integration
-* Google Maps travel-time analysis
-* Calendar sync
-* Location-aware scheduling
-
-## Frontend Improvements
-
-* Drag-drop calendar
-* Toast notifications
-* Task detail modals
-* Analytics dashboard
-* Mobile responsiveness
-
-## Infrastructure
-
-* Docker support
-* Cloud deployment
-* WebSockets
-* Redis queue system
-
----
-
 # Example Inputs
 
 ```text
-Gym tomorrow morning
+Schedule gym tomorrow morning
 ```
 
 ```text
@@ -453,20 +504,79 @@ Move gym to evening
 Delete doctor appointment
 ```
 
+```text
+Schedule meeting every Monday
+```
+
 ---
 
-# Learning Objectives
+# Current Capabilities
+
+- AI-assisted scheduling
+- Multi-user authentication
+- Calendar visualization
+- JWT-protected APIs
+- Persistent task storage
+- Conflict detection
+- NLP-driven task creation
+
+---
+
+# Future Improvements
+
+# AI Enhancements
+
+- Better reasoning models
+- Personalized scheduling
+- User behavior learning
+- Context-aware planning
+
+# Scheduling Improvements
+
+- Dynamic duration allocation
+- Smart free-slot scanning
+- Priority optimization
+- Adaptive rescheduling
+
+# Integrations
+
+- Google Calendar sync
+- Weather API integration
+- Maps & travel-time analysis
+- Notification systems
+
+# Infrastructure
+
+- Docker deployment
+- Redis queue system
+- WebSocket updates
+- CI/CD pipelines
+- Cloud hosting
+
+# Frontend Enhancements
+
+- Drag-and-drop calendar
+- Analytics dashboard
+- Task detail modals
+- Mobile optimization
+- Real-time updates
+
+---
+
+# Learning Outcomes
 
 This project demonstrates:
 
-* AI-assisted software systems
-* LLM orchestration
-* backend architecture
-* scheduling systems
-* React dashboard design
-* MongoDB integration
-* local AI inference
-* modular service architecture
+- AI-assisted software engineering
+- LLM orchestration
+- Full-stack architecture
+- Authentication systems
+- REST API development
+- Scheduling systems
+- MongoDB schema design
+- React dashboard development
+- Modular backend architecture
+- Local AI inference systems
 
 ---
 
@@ -474,4 +584,4 @@ This project demonstrates:
 
 Built by Billu
 
-AI-powered intelligent scheduling workspace using local LLMs.
+AI-powered intelligent scheduling workspace using local LLMs, modern full-stack architecture, and intelligent task orchestration.
